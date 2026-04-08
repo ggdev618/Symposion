@@ -9,7 +9,7 @@ import { SettingsModal } from '@/components/SettingsModal'
 import { NewSessionScreen } from '@/screens/NewSessionScreen'
 import { ActiveSessionScreen } from '@/screens/ActiveSessionScreen'
 import type { Member, Session } from '@/core/types'
-import { generateMemberId } from '@/core/board'
+import { generateMemberId, getMemberFromBank } from '@/core/board'
 import { setApiAdapter } from '@/core/api'
 import { createAdapter } from '@/lib/tauri-adapter'
 import { createSession, createUserMessage } from '@/core/session'
@@ -153,9 +153,16 @@ export default function App() {
     [autoFillMember]
   )
 
-  // Handle adding a suggested member
+  // Handle adding a suggested member — uses bank data first, falls back to auto-fill
   const handleAddSuggestion = useCallback(
     async (name: string) => {
+      // Check the bank first — no API call needed
+      const banked = getMemberFromBank(name)
+      if (banked) {
+        addMember(banked)
+        return
+      }
+      // Not in bank — try auto-fill if API key exists
       if (state.apiKey) {
         const result = await autoFillMember(name)
         if (result) {
@@ -168,16 +175,15 @@ export default function App() {
           return
         }
       }
-      // Fallback if no API key or auto-fill fails
-      const member: Member = {
+      // Last resort fallback
+      addMember({
         id: generateMemberId(name),
         name,
         emoji: '❓',
         role: '',
         personality: '',
         memories: [],
-      }
-      addMember(member)
+      })
     },
     [state.apiKey, autoFillMember, addMember]
   )

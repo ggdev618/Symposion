@@ -2,7 +2,7 @@ import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Switch } from '@/components/ui/switch'
 import type { Board } from '@/core/types'
-import { SUGGESTED_MEMBERS } from '@/core/board'
+import { SUGGESTED_MEMBERS, MAX_BOARD_MEMBERS } from '@/core/board'
 
 interface ManageBoardPanelProps {
   board: Board
@@ -34,6 +34,8 @@ export function ManageBoardPanel({
       devilsAdvocate: !board.devilsAdvocate,
     })
   }
+
+  const isFull = board.members.length >= MAX_BOARD_MEMBERS
 
   return (
     <>
@@ -104,18 +106,27 @@ export function ManageBoardPanel({
             ))}
 
             {/* Add member card */}
-            <button
-              onClick={onAddMember}
-              className="p-3 border border-dashed border-text-muted rounded-card flex flex-col items-center justify-center gap-2 min-h-[120px] hover:border-text-secondary transition-colors group"
-            >
-              <div className="w-9 h-9 rounded-full border border-dashed border-text-muted flex items-center justify-center text-[16px] text-text-muted group-hover:border-text-secondary group-hover:text-text-secondary transition-colors">
-                +
-              </div>
-              <span className="text-[12px] text-text-muted group-hover:text-text-secondary transition-colors">
-                Add member
-              </span>
-            </button>
+            {!isFull && (
+              <button
+                onClick={onAddMember}
+                className="p-3 border border-dashed border-text-muted rounded-card flex flex-col items-center justify-center gap-2 min-h-[120px] hover:border-text-secondary transition-colors group"
+              >
+                <div className="w-9 h-9 rounded-full border border-dashed border-text-muted flex items-center justify-center text-[16px] text-text-muted group-hover:border-text-secondary group-hover:text-text-secondary transition-colors">
+                  +
+                </div>
+                <span className="text-[12px] text-text-muted group-hover:text-text-secondary transition-colors">
+                  Add member
+                </span>
+              </button>
+            )}
           </div>
+
+          {/* Board full note */}
+          {isFull && (
+            <div className="text-[11px] text-text-muted mt-3">
+              Board is full ({MAX_BOARD_MEMBERS}/{MAX_BOARD_MEMBERS}). Remove a member to add someone new.
+            </div>
+          )}
 
           {/* Devil's advocate toggle */}
           <div className="flex items-center justify-between mt-6 py-3 border-t border-border">
@@ -147,7 +158,7 @@ export function ManageBoardPanel({
                   <button
                     key={suggestion.name}
                     onClick={() => onAddSuggestion(suggestion.name)}
-                    disabled={alreadyAdded}
+                    disabled={alreadyAdded || isFull}
                     className={cn(
                       'px-3 py-1.5 rounded-pill border text-[12px] transition-colors',
                       alreadyAdded

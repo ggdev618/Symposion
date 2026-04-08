@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import type { Board, Member, Session } from '@/core/types'
-import { createDefaultBoard } from '@/core/board'
+import { createDefaultBoard, MAX_BOARD_MEMBERS } from '@/core/board'
 
 export type Screen = 'new-session' | 'active-session'
 
@@ -64,15 +64,18 @@ export function useAppState() {
   }, [])
 
   const addMember = useCallback((member: Member) => {
-    setState((s) => ({
-      ...s,
-      board: {
-        ...s.board,
-        members: [...s.board.members, member],
-      },
-      addMemberOpen: false,
-      manageBoardOpen: true,
-    }))
+    setState((s) => {
+      if (s.board.members.length >= MAX_BOARD_MEMBERS) return s
+      return {
+        ...s,
+        board: {
+          ...s.board,
+          members: [...s.board.members, member],
+        },
+        addMemberOpen: false,
+        manageBoardOpen: true,
+      }
+    })
   }, [])
 
   const removeMember = useCallback((memberId: string) => {
