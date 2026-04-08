@@ -9,6 +9,13 @@ export interface ApiAdapter {
   }): Promise<{ status: number; text(): Promise<string> }>
 }
 
+/**
+ * Hard cap on output tokens per API call.
+ * 2048 tokens ≈ ~1,500 words — enough for a full board debate.
+ * At Sonnet pricing ($15/MTok output), worst case per call is ~$0.03.
+ */
+export const MAX_OUTPUT_TOKENS = 2048
+
 let adapter: ApiAdapter | null = null
 
 export function setApiAdapter(a: ApiAdapter) {
@@ -37,7 +44,7 @@ export async function callAnthropic(
     },
     body: JSON.stringify({
       model,
-      max_tokens: 4096,
+      max_tokens: MAX_OUTPUT_TOKENS,
       system: systemPrompt,
       messages: [
         { role: 'user', content: userMessage },
@@ -84,7 +91,7 @@ export async function callAnthropicWithHistory(
     },
     body: JSON.stringify({
       model,
-      max_tokens: 4096,
+      max_tokens: MAX_OUTPUT_TOKENS,
       system: systemPrompt,
       messages,
     }),
