@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(export NVM_HOME=\"/c/Users/Gabriel/AppData/Roaming/nvm\")",
+      "Read(//c/Users/Gabriel/Documents/Github/Symposion/**)",
+      "Read(//c/Users/Gabriel/.cargo/bin/**)",
+      "Bash(/c/Users/Gabriel/.cargo/bin/rustc.exe --version)",
+      "Bash(cmd.exe /c \"node --version\")",
+      "Bash(export PATH=\"/c/Users/Gabriel/AppData/Local/nvm/v22.22.2:/c/Users/Gabriel/.cargo/bin:$PATH\")",
+      "Bash(rustc --version)",
+      "Bash(cargo --version)",
+      "Bash(npm create:*)",
+      "Bash(cp -r symposion-temp/* symposion-temp/.gitignore \"Symposion/\")",
+      "Bash(rm -rf symposion-temp)",
+      "Bash(npm install:*)",
+      "Bash(npx tauri:*)",
+      "Bash(npx tailwindcss:*)",
+      "Bash(mkdir -p src/core src/components src/screens src/hooks scripts)",
+      "Bash(rm -f src/App.css src/App.tsx src/assets/react.svg public/vite.svg)",
+      "Bash(npx vite:*)",
+      "Bash(cargo check:*)",
+      "Bash(npx shadcn@latest init -d --base-color zinc --css-variables --tailwind-css src/index.css --tailwind-config tailwind.config.js)",
+      "Bash(npx shadcn@latest init -t vite -y --css-variables)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(ls \"C:/Users/Gabriel/Documents/Github/Symposion/node_modules/.bin/vite\"*)",
+      "Bash(npx tsc:*)"
+    ]
+  }
+}
