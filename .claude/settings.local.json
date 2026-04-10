@@ -24,7 +24,11 @@
       "Bash(npx shadcn@latest init -t vite -y --css-variables)",
       "mcp__Claude_Preview__preview_start",
       "Bash(ls \"C:/Users/Gabriel/Documents/Github/Symposion/node_modules/.bin/vite\"*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(npm uninstall:*)",
+      "Read(//c/Users/Gabriel/AppData/Roaming/com.symposion.desktop/**)",
+      "Read(//c/Users/Gabriel/AppData/Roaming//**)",
+      "Bash(cat /c/Users/Gabriel/Documents/Github/Symposion/src-tauri/capabilities/*.json)"
     ]
   }
 }

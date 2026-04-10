@@ -8,6 +8,7 @@ import { AddMemberPanel } from '@/components/AddMemberPanel'
 import { SettingsModal } from '@/components/SettingsModal'
 import { NewSessionScreen } from '@/screens/NewSessionScreen'
 import { ActiveSessionScreen } from '@/screens/ActiveSessionScreen'
+import { AppRoot, AppMain } from '@/App.styled'
 import type { Member, Session } from '@/core/types'
 import { generateMemberId, getMemberFromBank } from '@/core/board'
 import { setApiAdapter } from '@/core/api'
@@ -203,7 +204,7 @@ export default function App() {
   )
 
   return (
-    <div className="flex w-full h-full">
+    <AppRoot>
       <Sidebar
         board={state.board}
         sessions={state.sessions}
@@ -215,7 +216,7 @@ export default function App() {
         }}
         onManageBoard={() => setManageBoardOpen(true)}
       />
-      <main className="flex-1 flex flex-col min-w-0 bg-bg">
+      <AppMain component="main">
         {state.screen === 'new-session' && (
           <NewSessionScreen
             board={state.board}
@@ -237,7 +238,7 @@ export default function App() {
             onClearError={clearError}
           />
         )}
-      </main>
+      </AppMain>
 
       {/* Manage Board Panel */}
       <ManageBoardPanel
@@ -267,6 +268,6 @@ export default function App() {
         apiKey={state.apiKey}
         onSaveApiKey={setApiKey}
       />
-    </div>
+    </AppRoot>
   )
 }

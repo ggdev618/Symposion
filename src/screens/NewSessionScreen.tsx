@@ -1,5 +1,26 @@
 import { useState } from 'react'
+import { CircularProgress } from '@mui/material'
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import type { Board, Session as _Session } from '@/core/types'
+import {
+  Root,
+  HeaderArea,
+  AvatarStack,
+  AvatarCircle,
+  Heading,
+  CardGrid,
+  SessionCard,
+  CardEmoji,
+  CardTitle,
+  CardDescription,
+  CardWarning,
+  EmptyBoardWarning,
+  InputBarWrapper,
+  InputBarContainer,
+  StyledTextField,
+  SubmitButton,
+  HintText,
+} from './NewSessionScreen.styled'
 
 interface NewSessionScreenProps {
   board: Board
@@ -14,13 +35,11 @@ export function NewSessionScreen({ board, sessions, onStartSession, loading }: N
 
   const handleSubmit = () => {
     if (loading) return
-
     if (sessionType === 'listen') {
       onStartSession('listen')
       setSessionType(null)
       return
     }
-
     if (!input.trim()) return
     onStartSession('open', input.trim())
     setInput('')
@@ -29,7 +48,6 @@ export function NewSessionScreen({ board, sessions, onStartSession, loading }: N
 
   const handleListenClick = () => {
     setSessionType('listen')
-    // If "Just listen" is already selected and clicked again, start it
     if (sessionType === 'listen') {
       onStartSession('listen')
       setSessionType(null)
@@ -46,108 +64,92 @@ export function NewSessionScreen({ board, sessions, onStartSession, loading }: N
   const tooFewSessions = sessions.length < 5
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-between py-12 px-8">
+    <Root>
       {/* Header area */}
-      <div className="flex-1 flex flex-col items-center justify-center max-w-xl">
+      <HeaderArea>
         {/* Member avatar stack */}
-        <div className="flex -space-x-2 mb-6">
+        <AvatarStack>
           {board.members.map((member) => (
-            <div
-              key={member.id}
-              className="w-9 h-9 rounded-full bg-border flex items-center justify-center text-[16px] border-2 border-bg"
-            >
-              {member.emoji}
-            </div>
+            <AvatarCircle key={member.id}>{member.emoji}</AvatarCircle>
           ))}
-        </div>
+        </AvatarStack>
 
         {/* Heading */}
-        <h1 className="text-[20px] font-medium text-text-primary text-center leading-tight mb-8">
+        <Heading variant="h1">
           What are you bringing
           <br />
           to the board today?
-        </h1>
+        </Heading>
 
         {/* Session type cards */}
-        <div className="grid grid-cols-2 gap-3 w-full max-w-md">
-          <button
+        <CardGrid>
+          <SessionCard
             onClick={() => setSessionType('open')}
             disabled={loading}
-            className={`p-4 rounded-card border text-left transition-all ${
-              sessionType === 'open'
-                ? 'border-border-hover bg-card'
-                : 'border-border bg-card/50 hover:border-border-hover'
-            }`}
+            selected={sessionType === 'open'}
+            disableRipple
           >
-            <div className="text-[20px] mb-2">💬</div>
-            <div className="text-[13px] font-medium text-text-primary mb-1">
-              Open session
-            </div>
-            <div className="text-[11px] text-text-muted leading-relaxed">
-              Ask anything. The board debates and responds.
-            </div>
-          </button>
+            <CardEmoji>💬</CardEmoji>
+            <CardTitle>Open session</CardTitle>
+            <CardDescription>Ask anything. The board debates and responds.</CardDescription>
+          </SessionCard>
 
-          <button
+          <SessionCard
             onClick={handleListenClick}
             disabled={loading}
-            className={`p-4 rounded-card border text-left transition-all relative ${
-              sessionType === 'listen'
-                ? 'border-border-hover bg-card'
-                : 'border-border bg-card/50 hover:border-border-hover'
-            }`}
+            selected={sessionType === 'listen'}
+            disableRipple
           >
-            <div className="text-[20px] mb-2">🔇</div>
-            <div className="text-[13px] font-medium text-text-primary mb-1">
-              Just listen
-            </div>
-            <div className="text-[11px] text-text-muted leading-relaxed">
+            <CardEmoji>🔇</CardEmoji>
+            <CardTitle>Just listen</CardTitle>
+            <CardDescription>
               Say nothing. The board talks among themselves about you.
-            </div>
+            </CardDescription>
             {tooFewSessions && sessionType === 'listen' && (
-              <div className="mt-2 text-[10px] text-accent-no leading-relaxed">
+              <CardWarning>
                 Come back after a few more sessions. The board needs to know you first.
-              </div>
+              </CardWarning>
             )}
-          </button>
-        </div>
+          </SessionCard>
+        </CardGrid>
 
         {/* Empty board warning */}
         {board.members.length === 0 && (
-          <div className="mt-4 text-[12px] text-accent-no">
+          <EmptyBoardWarning>
             Add members to your board before starting a session.
-          </div>
+          </EmptyBoardWarning>
         )}
-      </div>
+      </HeaderArea>
 
       {/* Input bar */}
-      <div className="w-full max-w-2xl mt-8">
-        <div className="relative flex items-end bg-[#1a1a1a] border border-border rounded-card">
-          <textarea
+      <InputBarWrapper>
+        <InputBarContainer>
+          <StyledTextField
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={loading}
             placeholder="Describe a decision, plan, or situation…"
+            multiline
             rows={2}
-            className="flex-1 bg-transparent text-[14px] text-text-primary placeholder:text-text-ghost px-4 py-3 resize-none outline-none disabled:opacity-50"
+            fullWidth
           />
-          <button
+          <SubmitButton
             onClick={handleSubmit}
             disabled={!input.trim() || loading}
-            className="m-2 w-9 h-9 flex items-center justify-center bg-white text-black rounded-button disabled:opacity-30 hover:bg-white/90 transition-all shrink-0"
+            disableRipple
           >
             {loading ? (
-              <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+              <CircularProgress size={16} color="inherit" />
             ) : (
-              <span className="text-[16px]">&rarr;</span>
+              <ArrowForwardIcon />
             )}
-          </button>
-        </div>
-        <div className="text-[11px] text-text-ghost text-center mt-2">
+          </SubmitButton>
+        </InputBarContainer>
+        <HintText>
           Pressure test and steelman are available once inside a session.
-        </div>
-      </div>
-    </div>
+        </HintText>
+      </InputBarWrapper>
+    </Root>
   )
 }
