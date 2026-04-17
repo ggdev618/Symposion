@@ -16,6 +16,9 @@ import {
   ToggleVisibilityButton,
   Footer,
   SaveButton,
+  DangerSection,
+  DangerLabel,
+  DangerButton,
 } from './SettingsModal.styled'
 
 interface SettingsModalProps {
@@ -23,6 +26,8 @@ interface SettingsModalProps {
   onClose: () => void
   apiKey: string | null
   onSaveApiKey: (key: string) => void
+  onClearMemories?: () => void
+  onClearAllData?: () => void
 }
 
 export function SettingsModal({
@@ -30,12 +35,36 @@ export function SettingsModal({
   onClose,
   apiKey,
   onSaveApiKey,
+  onClearMemories,
+  onClearAllData,
 }: SettingsModalProps) {
   const [key, setKey] = useState(apiKey ?? '')
   const [showKey, setShowKey] = useState(false)
+  const [confirmClear, setConfirmClear] = useState(false)
+  const [confirmClearAll, setConfirmClearAll] = useState(false)
 
   const handleSave = () => {
     onSaveApiKey(key.trim())
+    onClose()
+  }
+
+  const handleClearMemories = () => {
+    if (!confirmClear) {
+      setConfirmClear(true)
+      return
+    }
+    onClearMemories?.()
+    setConfirmClear(false)
+    onClose()
+  }
+
+  const handleClearAllData = () => {
+    if (!confirmClearAll) {
+      setConfirmClearAll(true)
+      return
+    }
+    onClearAllData?.()
+    setConfirmClearAll(false)
     onClose()
   }
 
@@ -94,6 +123,36 @@ export function SettingsModal({
               Save
             </SaveButton>
           </Footer>
+
+          {/* Danger zone */}
+          {(onClearMemories || onClearAllData) && (
+            <DangerSection>
+              <DangerLabel>Danger zone</DangerLabel>
+              {onClearMemories && (
+                <DangerButton
+                  onClick={handleClearMemories}
+                  disableRipple
+                  onBlur={() => setConfirmClear(false)}
+                  style={{ marginBottom: onClearAllData ? 8 : 0 }}
+                >
+                  {confirmClear
+                    ? 'Are you sure? Click again to confirm'
+                    : 'Clear all board memories'}
+                </DangerButton>
+              )}
+              {onClearAllData && (
+                <DangerButton
+                  onClick={handleClearAllData}
+                  disableRipple
+                  onBlur={() => setConfirmClearAll(false)}
+                >
+                  {confirmClearAll
+                    ? 'Are you sure? Click again to confirm'
+                    : 'Clear all chats & memories'}
+                </DangerButton>
+              )}
+            </DangerSection>
+          )}
         </ModalCard>
       </ModalContainer>
     </>

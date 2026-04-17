@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
 import type { Member } from '@/core/types'
@@ -26,7 +26,10 @@ import {
   EmojiRow,
   EmojiPreview,
   Footer,
+  FooterButtons,
   SubmitButton,
+  SaveToBankButton,
+  MissingFieldsHint,
   AiFilledChip,
 } from './AddMemberPanel.styled'
 import { Box } from '@mui/material'
@@ -35,6 +38,10 @@ interface AddMemberPanelProps {
   isOpen: boolean
   onClose: () => void
   onAddMember: (member: Member) => void
+  onSaveToBank: (member: Member) => void
+  onUpdateMember?: (member: Member) => void
+  editMember?: Member | null
+  customBank?: Member[]
   onAutoFill: (description: string) => Promise<{
     name: string
     emoji: string
@@ -56,8 +63,14 @@ export function AddMemberPanel({
   isOpen,
   onClose,
   onAddMember,
+  onSaveToBank,
+  onUpdateMember,
+  editMember,
+  customBank = [],
   onAutoFill,
 }: AddMemberPanelProps) {
+  const isEditMode = !!editMember
+
   const [autoFillInput, setAutoFillInput] = useState('')
   const [name, setName] = useState('')
   const [role, setRole] = useState('')
@@ -65,6 +78,18 @@ export function AddMemberPanel({
   const [personality, setPersonality] = useState('')
   const [filledFields, setFilledFields] = useState<Set<string>>(new Set())
   const [isAutoFilling, setIsAutoFilling] = useState(false)
+
+  // Populate fields when entering edit mode
+  useEffect(() => {
+    if (isOpen && editMember) {
+      setName(editMember.name)
+      setRole(editMember.role)
+      setEmoji(editMember.emoji)
+      setPersonality(editMember.personality)
+      setFilledFields(new Set())
+      setAutoFillInput('')
+    }
+  }, [isOpen, editMember])
 
   const resetForm = () => {
     setAutoFillInput('')
@@ -96,17 +121,32 @@ export function AddMemberPanel({
     }
   }
 
+  const buildMember = (): Member => ({
+    // In edit mode, preserve the original id and memories
+    id: editMember?.id ?? generateMemberId(name),
+    name: name.trim(),
+    emoji: emoji.trim() || '?',
+    role: role.trim(),
+    personality: personality.trim(),
+    memories: editMember?.memories ?? [],
+    condensedMemory: editMember?.condensedMemory,
+  })
+
   const handleSubmit = () => {
     if (!name.trim()) return
-    const member: Member = {
-      id: generateMemberId(name),
-      name: name.trim(),
-      emoji: emoji.trim() || '?',
-      role: role.trim(),
-      personality: personality.trim(),
-      memories: [],
-    }
-    onAddMember(member)
+    onAddMember(buildMember())
+    resetForm()
+  }
+
+  const handleUpdate = () => {
+    if (!canSubmit) return
+    onUpdateMember?.(buildMember())
+    resetForm()
+  }
+
+  const handleSaveToBank = () => {
+    if (!canSubmit) return
+    onSaveToBank(buildMember())
     resetForm()
   }
 
@@ -118,7 +158,19 @@ export function AddMemberPanel({
     })
   }
 
-  const canSubmit = name.trim().length > 0
+  const missingFields = [
+    !name.trim() && 'name',
+    !role.trim() && 'role',
+    !emoji.trim() && 'emoji',
+    !personality.trim() && 'personality',
+  ].filter(Boolean) as string[]
+  const canSubmit = missingFields.length === 0
+
+  const isAlreadyInBank = customBank.some(
+    (m) =>
+      (editMember && m.id === editMember.id) ||
+      (name.trim() && m.name.toLowerCase() === name.trim().toLowerCase())
+  )
 
   return (
     <>
@@ -132,45 +184,49 @@ export function AddMemberPanel({
           <BackButton onClick={handleClose} size="small">
             <ArrowBackIcon />
           </BackButton>
-          <HeaderTitle>Add member</HeaderTitle>
+          <HeaderTitle>{isEditMode ? 'Edit member' : 'Add member'}</HeaderTitle>
         </Header>
 
         {/* Content */}
         <Content>
-          {/* Auto-fill section */}
-          <AutoFillSection>
-            <SectionLabel>
-              Describe any real or fictional character
-            </SectionLabel>
-            <AutoFillRow>
-              <StyledTextField
-                value={autoFillInput}
-                onChange={(e) => setAutoFillInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') handleAutoFill() }}
-                placeholder="e.g. Elon Musk, Gandalf, Marie Curie..."
-                size="small"
-                fullWidth
-              />
-              <FillButton
-                onClick={handleAutoFill}
-                disabled={!autoFillInput.trim() || isAutoFilling}
-                disableRipple
-                startIcon={<AutoAwesomeIcon />}
-              >
-                Fill
-              </FillButton>
-            </AutoFillRow>
-          </AutoFillSection>
+          {/* Auto-fill section — hidden in edit mode */}
+          {!isEditMode && (
+            <>
+              <AutoFillSection>
+                <SectionLabel>
+                  Describe any real or fictional character
+                </SectionLabel>
+                <AutoFillRow>
+                  <StyledTextField
+                    value={autoFillInput}
+                    onChange={(e) => setAutoFillInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleAutoFill() }}
+                    placeholder="e.g. Elon Musk, Gandalf, Marie Curie..."
+                    size="small"
+                    fullWidth
+                  />
+                  <FillButton
+                    onClick={handleAutoFill}
+                    disabled={!autoFillInput.trim() || isAutoFilling}
+                    disableRipple
+                    startIcon={<AutoAwesomeIcon />}
+                  >
+                    Fill
+                  </FillButton>
+                </AutoFillRow>
+              </AutoFillSection>
 
-          {/* Divider */}
-          <DividerWrapper>
-            <DividerLine>
-              <DividerBorder />
-            </DividerLine>
-            <DividerLabelWrap>
-              <DividerLabel>or fill manually</DividerLabel>
-            </DividerLabelWrap>
-          </DividerWrapper>
+              {/* Divider */}
+              <DividerWrapper>
+                <DividerLine>
+                  <DividerBorder />
+                </DividerLine>
+                <DividerLabelWrap>
+                  <DividerLabel>or fill manually</DividerLabel>
+                </DividerLabelWrap>
+              </DividerWrapper>
+            </>
+          )}
 
           {/* Form fields */}
           <FormFields>
@@ -241,15 +297,39 @@ export function AddMemberPanel({
           </FormFields>
         </Content>
 
-        {/* Submit button */}
+        {/* Footer */}
         <Footer>
-          <SubmitButton
-            onClick={handleSubmit}
-            disabled={!canSubmit}
-            disableRipple
-          >
-            Add to board
-          </SubmitButton>
+          <FooterButtons>
+            {isEditMode ? (
+              <SubmitButton
+                onClick={handleUpdate}
+                disabled={!canSubmit}
+                disableRipple
+              >
+                Save changes
+              </SubmitButton>
+            ) : (
+              <SubmitButton
+                onClick={handleSubmit}
+                disabled={!canSubmit}
+                disableRipple
+              >
+                Add to board
+              </SubmitButton>
+            )}
+            <SaveToBankButton
+              onClick={handleSaveToBank}
+              disabled={!canSubmit || isAlreadyInBank}
+              disableRipple
+            >
+              {isAlreadyInBank ? 'Already in bank' : 'Save to bank'}
+            </SaveToBankButton>
+          </FooterButtons>
+          {missingFields.length > 0 && missingFields.length < 4 && (
+            <MissingFieldsHint>
+              Still needed: {missingFields.join(', ')}
+            </MissingFieldsHint>
+          )}
         </Footer>
       </Panel>
     </>

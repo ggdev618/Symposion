@@ -154,9 +154,41 @@ export const SubmitButton = styled(Button)({
   },
 })
 
+export const InputBarFooter = styled(Box)({
+  display: 'flex',
+  alignItems: 'flex-start',
+  justifyContent: 'space-between',
+  marginTop: 8,
+  gap: 16,
+})
+
 export const HintText = styled(Typography)({
   fontSize: 11,
   color: '#3a3a3a',
-  textAlign: 'center',
-  marginTop: 8,
+})
+
+export const ListenButton = styled(Button)({
+  fontSize: 11,
+  color: '#3a3a3a',
+  textTransform: 'none',
+  padding: 0,
+  minWidth: 0,
+  lineHeight: 1.5,
+  flexShrink: 0,
+  fontFamily: 'Inter, sans-serif',
+  transition: 'color 150ms',
+  '&:hover': {
+    color: '#666',
+    backgroundColor: 'transparent',
+  },
+  '&.Mui-disabled': {
+    color: '#2a2a2a',
+  },
+})
+
+export const ListenWarning = styled(Typography)({
+  fontSize: 10,
+  color: '#f87171',
+  textAlign: 'right',
+  marginTop: 2,
 })

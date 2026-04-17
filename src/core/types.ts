@@ -14,6 +14,16 @@ export type Memory = {
   question: string
   position: string
   reasoning: string
+  /** ID of the session this memory was created from. */
+  sessionId?: string
+}
+
+/** Lightweight member snapshot stored with each session. */
+export type MemberSnapshot = {
+  id: string
+  name: string
+  emoji: string
+  role: string
 }
 
 export type Session = {
@@ -23,6 +33,8 @@ export type Session = {
   messages: Message[]
   verdict?: string
   tensionMap?: TensionMap
+  /** Board members present when this session was created. */
+  boardSnapshot?: MemberSnapshot[]
 }
 
 export type Message = {
@@ -32,6 +44,8 @@ export type Message = {
   dialogue?: DialogueLine[]
   verdict?: string
   tensionMap?: TensionMap
+  /** Whether the board treated this as a yes/no decision or an open discussion. */
+  questionType?: 'decision' | 'discussion'
 }
 
 export type DialogueLine = {
@@ -61,6 +75,8 @@ export type Board = {
   name: string
   members: Member[]
   devilsAdvocate: boolean
+  /** User-created characters saved to the bank for reuse. */
+  customBank?: Member[]
 }
 
 export type Guest = {

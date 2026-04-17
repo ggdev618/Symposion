@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles'
-import { Box, Typography, Button } from '@mui/material'
+import { Box, Typography, Button, IconButton } from '@mui/material'
 
 /* ── Design tokens ── */
 const tokens = {
@@ -30,7 +30,7 @@ export const SidebarRoot = styled(Box)({
   flexDirection: 'column',
   borderRight: `1px solid ${tokens.border}`,
   fontFamily: tokens.font,
-})
+}) as typeof Box
 
 /* ── Logo section ── */
 export const LogoWrapper = styled(Box)({
@@ -38,6 +38,24 @@ export const LogoWrapper = styled(Box)({
   alignItems: 'center',
   gap: 10,
   padding: '20px 20px',
+  justifyContent: 'space-between',
+})
+
+export const LogoLeft = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  gap: 10,
+})
+
+export const SettingsButton = styled(IconButton)({
+  color: tokens.textMuted,
+  width: 28,
+  height: 28,
+  flexShrink: 0,
+  '& .MuiSvgIcon-root': { fontSize: 15 },
+  '&:hover': {
+    color: tokens.textSecondary,
+  },
 })
 
 export const LogoIcon = styled(Box)({
@@ -175,11 +193,19 @@ export const SessionList = styled(Box)({
   gap: 2,
 })
 
+export const SessionRow = styled(Box)({
+  position: 'relative',
+  '&:hover .session-delete': {
+    opacity: 1,
+  },
+})
+
 export const SessionButton = styled(Button, {
   shouldForwardProp: (prop) => prop !== 'active',
 })<{ active?: boolean }>(({ active }) => ({
   textAlign: 'left',
   padding: '6px 8px',
+  paddingRight: 28,
   borderRadius: tokens.radiusButton,
   textTransform: 'none',
   display: 'block',
@@ -191,6 +217,22 @@ export const SessionButton = styled(Button, {
     backgroundColor: active ? tokens.border : 'rgba(30,30,30,0.5)',
   },
 }))
+
+export const SessionDeleteButton = styled(IconButton)({
+  position: 'absolute',
+  top: '50%',
+  right: 4,
+  transform: 'translateY(-50%)',
+  width: 20,
+  height: 20,
+  color: tokens.textGhost,
+  opacity: 0,
+  transition: 'opacity 150ms, color 150ms',
+  '& .MuiSvgIcon-root': { fontSize: 12 },
+  '&:hover': {
+    color: tokens.textSecondary,
+  },
+})
 
 export const SessionTitle = styled(Typography)({
   fontSize: 12,

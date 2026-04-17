@@ -73,7 +73,7 @@ export const MemberChip = styled(Chip)({
 export const ChipEmojiIcon = styled(Box)({
   fontSize: 11,
   marginLeft: 4,
-})
+}) as typeof Box
 
 // ─── Session Body ──────────────────────────────────────
 
@@ -266,11 +266,11 @@ export const SpeakerInfo = styled(Box)({
 
 export const SpeakerEmoji = styled(Typography)({
   fontSize: 13,
-})
+}) as typeof Typography
 
 export const SpeakerName = styled(Typography, {
   shouldForwardProp: (prop) => prop !== 'isFirst' && prop !== 'isDevil',
-})<{ isFirst?: boolean; isDevil?: boolean }>(({ isFirst, isDevil }) => ({
+})<{ isFirst?: boolean; isDevil?: boolean; component?: string }>(({ isFirst, isDevil }) => ({
   fontSize: 13,
   fontWeight: isFirst ? 600 : 400,
   fontStyle: isDevil ? 'italic' : 'normal',
@@ -279,7 +279,7 @@ export const SpeakerName = styled(Typography, {
 
 export const VotePill = styled(Box, {
   shouldForwardProp: (prop) => prop !== 'vote',
-})<{ vote: 'yes' | 'no' | string }>(({ vote }) => {
+})<{ vote: 'yes' | 'no' | string; component?: string }>(({ vote }) => {
   const isYes = vote === 'yes'
   const isNo = vote === 'no'
   const accent = isYes ? '#4ade80' : isNo ? '#f87171' : undefined

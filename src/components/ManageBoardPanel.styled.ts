@@ -61,6 +61,7 @@ export const MemberGrid = styled(Box)({
   display: 'grid',
   gridTemplateColumns: 'repeat(2, 1fr)',
   gap: 12,
+  alignItems: 'start',
 })
 
 export const MemberCard = styled(Box)({
@@ -69,7 +70,9 @@ export const MemberCard = styled(Box)({
   backgroundColor: '#181818',
   border: '1px solid #1e1e1e',
   borderRadius: 7,
-  '&:hover .remove-btn': {
+  minWidth: 0,
+  overflow: 'hidden',
+  '&:hover .remove-btn, &:hover .edit-btn': {
     opacity: 1,
   },
 })
@@ -78,6 +81,21 @@ export const RemoveButton = styled(IconButton)({
   position: 'absolute',
   top: 8,
   right: 8,
+  width: 20,
+  height: 20,
+  color: '#3a3a3a',
+  opacity: 0,
+  transition: 'opacity 150ms',
+  '& .MuiSvgIcon-root': { fontSize: 12 },
+  '&:hover': {
+    color: '#bbb',
+  },
+})
+
+export const EditButton = styled(IconButton)({
+  position: 'absolute',
+  top: 8,
+  right: 32,
   width: 20,
   height: 20,
   color: '#3a3a3a',
@@ -142,6 +160,8 @@ export const AddMemberButton = styled(Button)({
   justifyContent: 'center',
   gap: 8,
   minHeight: 120,
+  minWidth: 0,
+  overflow: 'hidden',
   textTransform: 'none',
   transition: 'border-color 150ms, color 150ms',
   '&:hover': {
@@ -199,7 +219,7 @@ export const DevilsAdvocateLabel = styled(Typography)({
   color: '#bbb',
   cursor: 'pointer',
   fontFamily: 'Inter, sans-serif',
-})
+}) as typeof Typography
 
 export const StyledSwitch = styled(Switch)({
   '& .MuiSwitch-switchBase.Mui-checked': {
@@ -232,6 +252,26 @@ export const SuggestionsWrap = styled(Box)({
   flexWrap: 'wrap',
   gap: 8,
 })
+
+export const CustomBankChip = styled(Button)<{ disabled?: boolean }>(({ disabled }) => ({
+  padding: '6px 12px',
+  borderRadius: 99,
+  border: '1px solid #2a2a1e',
+  fontSize: 12,
+  textTransform: 'none',
+  minWidth: 0,
+  transition: 'border-color 150ms, color 150ms',
+  color: disabled ? '#3a3a3a' : '#c8b87a',
+  ...(disabled
+    ? {}
+    : {
+        '&:hover': {
+          borderColor: '#3a3a2a',
+          color: '#e0d090',
+          backgroundColor: 'transparent',
+        },
+      }),
+}))
 
 export const SuggestionChip = styled(Button)<{ disabled?: boolean }>(({ disabled }) => ({
   padding: '6px 12px',

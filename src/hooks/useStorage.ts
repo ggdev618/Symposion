@@ -24,8 +24,9 @@ async function getStore() {
 // ─── plugin-stronghold (API key — encrypted at rest) ────────────────────────
 
 let strongholdModule: typeof import('@tauri-apps/plugin-stronghold') | null = null
+let pathModule: typeof import('@tauri-apps/api/path') | null = null
 
-const STRONGHOLD_PATH = 'symposion-vault.hold'
+const STRONGHOLD_FILE = 'symposion-vault.hold'
 const STRONGHOLD_PASSWORD = 'symposion-local'
 const STRONGHOLD_CLIENT = 'symposion'
 const STRONGHOLD_KEY = 'anthropic-api-key'
@@ -39,8 +40,20 @@ async function getStrongholdStore() {
       return null
     }
   }
+  if (!pathModule) {
+    try {
+      pathModule = await import('@tauri-apps/api/path')
+    } catch {
+      console.warn('@tauri-apps/api/path not available')
+      return null
+    }
+  }
   try {
-    const stronghold = await strongholdModule.Stronghold.load(STRONGHOLD_PATH, STRONGHOLD_PASSWORD)
+    // Resolve to AppData so the vault file doesn't land in src-tauri/
+    // and trigger Cargo rebuilds during `tauri dev`
+    const appDataDir = await pathModule.appDataDir()
+    const vaultPath = `${appDataDir}${STRONGHOLD_FILE}`
+    const stronghold = await strongholdModule.Stronghold.load(vaultPath, STRONGHOLD_PASSWORD)
     let client
     try {
       client = await stronghold.loadClient(STRONGHOLD_CLIENT)

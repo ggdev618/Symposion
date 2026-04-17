@@ -57,6 +57,7 @@ export async function compressSessionMemories(
         id: crypto.randomUUID(),
         date: new Date().toISOString().split('T')[0],
         question,
+        sessionId: session.id,
         position: result.position,
         reasoning: result.reasoning,
       }

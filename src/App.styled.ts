@@ -13,4 +13,4 @@ export const AppMain = styled(Box)({
   flexDirection: 'column',
   minWidth: 0,
   backgroundColor: '#111',
-})
+}) as typeof Box

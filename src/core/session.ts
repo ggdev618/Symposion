@@ -1,11 +1,12 @@
-import type { Session, Message, DialogueLine } from './types'
+import type { Session, Message, DialogueLine, Member } from './types'
 
-export function createSession(type: 'open' | 'listen'): Session {
+export function createSession(type: 'open' | 'listen', members?: Member[]): Session {
   return {
     id: crypto.randomUUID(),
     date: new Date().toISOString(),
     type,
     messages: [],
+    boardSnapshot: members?.map(({ id, name, emoji, role }) => ({ id, name, emoji, role })),
   }
 }
 
@@ -21,7 +22,8 @@ export function createBoardMessage(
   content: string,
   dialogue: DialogueLine[],
   verdict?: string,
-  tensionMap?: Message['tensionMap']
+  tensionMap?: Message['tensionMap'],
+  questionType?: Message['questionType']
 ): Message {
   return {
     id: crypto.randomUUID(),
@@ -30,6 +32,7 @@ export function createBoardMessage(
     dialogue,
     verdict,
     tensionMap,
+    questionType,
   }
 }
 

@@ -13,6 +13,7 @@ export interface AppState {
   addMemberOpen: boolean
   settingsOpen: boolean
   apiKey: string | null
+  editingMember: Member | null
 }
 
 export function useAppState() {
@@ -25,6 +26,7 @@ export function useAppState() {
     addMemberOpen: false,
     settingsOpen: false,
     apiKey: null,
+    editingMember: null,
   })
 
   const setBoard = useCallback((board: Board) => {
@@ -61,6 +63,27 @@ export function useAppState() {
 
   const setApiKey = useCallback((apiKey: string | null) => {
     setState((s) => ({ ...s, apiKey }))
+  }, [])
+
+  const setEditingMember = useCallback((member: Member | null) => {
+    setState((s) => ({
+      ...s,
+      editingMember: member,
+      addMemberOpen: member !== null,
+    }))
+  }, [])
+
+  const updateBoardMember = useCallback((updated: Member) => {
+    setState((s) => ({
+      ...s,
+      board: {
+        ...s.board,
+        members: s.board.members.map((m) => (m.id === updated.id ? updated : m)),
+      },
+      editingMember: null,
+      addMemberOpen: false,
+      manageBoardOpen: true,
+    }))
   }, [])
 
   const addMember = useCallback((member: Member) => {
@@ -118,6 +141,79 @@ export function useAppState() {
     }))
   }, [])
 
+  const addToBank = useCallback((member: Member) => {
+    setState((s) => {
+      const existing = s.board.customBank ?? []
+      // Don't add duplicates — check both id and name (case-insensitive)
+      const isDuplicate = existing.some(
+        (m) =>
+          m.id === member.id ||
+          m.name.toLowerCase() === member.name.toLowerCase()
+      )
+      if (isDuplicate) return s
+      return {
+        ...s,
+        board: {
+          ...s.board,
+          customBank: [...existing, member],
+        },
+      }
+    })
+  }, [])
+
+  const clearAllMemories = useCallback(() => {
+    setState((s) => ({
+      ...s,
+      board: {
+        ...s.board,
+        members: s.board.members.map((member) => ({
+          ...member,
+          memories: [],
+          condensedMemory: undefined,
+        })),
+      },
+    }))
+  }, [])
+
+  const clearAllData = useCallback(() => {
+    setState((s) => ({
+      ...s,
+      sessions: [],
+      activeSessionId: null,
+      screen: 'new-session',
+      board: {
+        ...s.board,
+        members: s.board.members.map((member) => ({
+          ...member,
+          memories: [],
+          condensedMemory: undefined,
+        })),
+        // customBank is intentionally preserved
+      },
+    }))
+  }, [])
+
+  const deleteSession = useCallback((sessionId: string) => {
+    setState((s) => {
+      const sessions = s.sessions.filter((sess) => sess.id !== sessionId)
+      const wasActive = s.activeSessionId === sessionId
+
+      // Remove memories that came from this session
+      const members = s.board.members.map((member) => ({
+        ...member,
+        memories: member.memories.filter((m) => m.sessionId !== sessionId),
+      }))
+
+      return {
+        ...s,
+        sessions,
+        board: { ...s.board, members },
+        activeSessionId: wasActive ? null : s.activeSessionId,
+        screen: wasActive ? 'new-session' : s.screen,
+      }
+    })
+  }, [])
+
   return {
     state,
     activeSession,
@@ -134,5 +230,11 @@ export function useAppState() {
     toggleDevilsAdvocate,
     updateSession,
     addSession,
+    deleteSession,
+    addToBank,
+    clearAllMemories,
+    setEditingMember,
+    updateBoardMember,
+    clearAllData,
   }
 }

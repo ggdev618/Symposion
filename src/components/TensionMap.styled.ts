@@ -22,7 +22,7 @@ export const HeaderButton = styled(Box)({
   '&:hover': {
     backgroundColor: 'rgba(24, 24, 24, 0.5)',
   },
-})
+}) as typeof Box
 
 export const ClusterDotsRow = styled(Box)({
   display: 'flex',
@@ -169,7 +169,7 @@ export const SplitRatioLabel = styled(Typography)({
   flexShrink: 0,
   marginLeft: 4,
   fontFamily: 'Inter, sans-serif',
-})
+}) as typeof Typography
 
 export const SidesRow = styled(Box)({
   display: 'flex',

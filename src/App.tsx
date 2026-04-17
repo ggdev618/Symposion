@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useRef } from 'react'
 import { useAppState } from '@/hooks/useAppState'
 import { useSession } from '@/hooks/useSession'
 import { useStorage } from '@/hooks/useStorage'
@@ -30,6 +30,12 @@ export default function App() {
     addMember,
     addSession,
     updateSession,
+    deleteSession,
+    addToBank,
+    clearAllMemories,
+    clearAllData,
+    setEditingMember,
+    updateBoardMember,
   } = useAppState()
 
   // Initialize the API adapter on mount
@@ -44,17 +50,26 @@ export default function App() {
     onApiKeyLoaded: setApiKey,
   })
 
+  // Skip writing back data that was just loaded from storage
+  const hydrated = useRef(false)
+  useEffect(() => {
+    // Mark hydrated after the first render cycle so we don't
+    // write back initial/loaded state and trigger unnecessary disk writes
+    const id = requestAnimationFrame(() => { hydrated.current = true })
+    return () => cancelAnimationFrame(id)
+  }, [])
+
   // Auto-save board, sessions, and API key when they change
   useEffect(() => {
-    saveBoard(state.board)
+    if (hydrated.current) saveBoard(state.board)
   }, [state.board, saveBoard])
 
   useEffect(() => {
-    saveSessions(state.sessions)
+    if (hydrated.current) saveSessions(state.sessions)
   }, [state.sessions, saveSessions])
 
   useEffect(() => {
-    saveApiKey(state.apiKey)
+    if (hydrated.current) saveApiKey(state.apiKey)
   }, [state.apiKey, saveApiKey])
 
   const handleMemberUpdated = useCallback(
@@ -195,7 +210,7 @@ export default function App() {
       if (type === 'listen') {
         await handleStartListenSession()
       } else if (question) {
-        const session = createSession('open')
+        const session = createSession('open', state.board.members)
         session.messages.push(createUserMessage(question))
         await handleStartSession(session)
       }
@@ -210,11 +225,13 @@ export default function App() {
         sessions={state.sessions}
         activeSessionId={state.activeSessionId}
         onSelectSession={setActiveSession}
+        onDeleteSession={deleteSession}
         onNewSession={() => {
           setActiveSession(null)
           setScreen('new-session')
         }}
         onManageBoard={() => setManageBoardOpen(true)}
+        onOpenSettings={() => setSettingsOpen(true)}
       />
       <AppMain component="main">
         {state.screen === 'new-session' && (
@@ -247,7 +264,9 @@ export default function App() {
         onClose={() => setManageBoardOpen(false)}
         onUpdateBoard={setBoard}
         onAddMember={() => setAddMemberOpen(true)}
+        onEditMember={setEditingMember}
         onAddSuggestion={handleAddSuggestion}
+        onAddFromBank={addMember}
       />
 
       {/* Add Member Panel */}
@@ -255,9 +274,14 @@ export default function App() {
         isOpen={state.addMemberOpen}
         onClose={() => {
           setAddMemberOpen(false)
+          setEditingMember(null)
           setManageBoardOpen(true)
         }}
         onAddMember={addMember}
+        onSaveToBank={addToBank}
+        onUpdateMember={updateBoardMember}
+        editMember={state.editingMember}
+        customBank={state.board.customBank}
         onAutoFill={handleAutoFill}
       />
 
@@ -267,6 +291,8 @@ export default function App() {
         onClose={() => setSettingsOpen(false)}
         apiKey={state.apiKey}
         onSaveApiKey={setApiKey}
+        onClearMemories={clearAllMemories}
+        onClearAllData={clearAllData}
       />
     </AppRoot>
   )

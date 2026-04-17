@@ -1,5 +1,6 @@
 import CloseIcon from '@mui/icons-material/Close'
-import type { Board } from '@/core/types'
+import EditIcon from '@mui/icons-material/Edit'
+import type { Board, Member } from '@/core/types'
 import { SUGGESTED_MEMBERS, MAX_BOARD_MEMBERS } from '@/core/board'
 import {
   Backdrop,
@@ -11,6 +12,7 @@ import {
   MemberGrid,
   MemberCard,
   RemoveButton,
+  EditButton,
   EmojiCircle,
   MemberName,
   MemberRole,
@@ -26,6 +28,7 @@ import {
   SuggestionsTitle,
   SuggestionsWrap,
   SuggestionChip,
+  CustomBankChip,
 } from './ManageBoardPanel.styled'
 
 interface ManageBoardPanelProps {
@@ -34,7 +37,9 @@ interface ManageBoardPanelProps {
   onClose: () => void
   onUpdateBoard: (board: Board) => void
   onAddMember: () => void
+  onEditMember: (member: Member) => void
   onAddSuggestion: (name: string) => void
+  onAddFromBank: (member: Member) => void
 }
 
 export function ManageBoardPanel({
@@ -43,8 +48,11 @@ export function ManageBoardPanel({
   onClose,
   onUpdateBoard,
   onAddMember,
+  onEditMember,
   onAddSuggestion,
+  onAddFromBank,
 }: ManageBoardPanelProps) {
+  const customBank = board.customBank ?? []
   const isFull = board.members.length >= MAX_BOARD_MEMBERS
 
   const removeMember = (memberId: string) => {
@@ -82,6 +90,15 @@ export function ManageBoardPanel({
           <MemberGrid>
             {board.members.map((member) => (
               <MemberCard key={member.id}>
+                {/* Edit button */}
+                <EditButton
+                  className="edit-btn"
+                  onClick={() => onEditMember(member)}
+                  size="small"
+                >
+                  <EditIcon />
+                </EditButton>
+
                 {/* Remove button */}
                 <RemoveButton
                   className="remove-btn"
@@ -135,11 +152,38 @@ export function ManageBoardPanel({
             />
           </DevilsAdvocateRow>
 
-          {/* Suggestions */}
+          {/* Custom bank */}
+          {customBank.length > 0 && (
+            <SuggestionsSection>
+              <SuggestionsTitle>Your characters</SuggestionsTitle>
+              <SuggestionsWrap>
+                {customBank.map((member) => {
+                  const alreadyAdded = board.members.some((m) => m.id === member.id)
+                  return (
+                    <CustomBankChip
+                      key={member.id}
+                      onClick={() => onAddFromBank(member)}
+                      disabled={alreadyAdded || isFull}
+                      disableRipple
+                    >
+                      {member.emoji} {member.name}
+                    </CustomBankChip>
+                  )
+                })}
+              </SuggestionsWrap>
+            </SuggestionsSection>
+          )}
+
+          {/* Suggestions — hide any that are already in the custom bank */}
           <SuggestionsSection>
             <SuggestionsTitle>Suggestions</SuggestionsTitle>
             <SuggestionsWrap>
-              {SUGGESTED_MEMBERS.map((suggestion) => {
+              {SUGGESTED_MEMBERS.filter(
+                (suggestion) =>
+                  !customBank.some(
+                    (m) => m.name.toLowerCase() === suggestion.name.toLowerCase()
+                  )
+              ).map((suggestion) => {
                 const alreadyAdded = board.members.some(
                   (m) => m.name.toLowerCase() === suggestion.name.toLowerCase()
                 )

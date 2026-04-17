@@ -212,6 +212,41 @@ export const SubmitButton = styled(Button)({
   },
 })
 
+export const SaveToBankButton = styled(Button)({
+  width: '100%',
+  padding: '10px 0',
+  backgroundColor: 'transparent',
+  color: '#e0e0e0',
+  border: '1px solid #2a2a2a',
+  fontSize: 13,
+  fontWeight: 500,
+  borderRadius: 5,
+  textTransform: 'none',
+  transition: 'all 150ms',
+  '&:hover': {
+    backgroundColor: '#1e1e1e',
+    borderColor: '#3a3a3a',
+  },
+  '&.Mui-disabled': {
+    opacity: 0.25,
+    color: '#e0e0e0',
+  },
+})
+
+export const FooterButtons = styled(Box)({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 8,
+})
+
+export const MissingFieldsHint = styled(Typography)({
+  marginTop: 8,
+  fontSize: 11,
+  color: '#444',
+  textAlign: 'center',
+  fontFamily: 'Inter, sans-serif',
+})
+
 export const AiFilledChip = styled(Box)({
   display: 'inline-flex',
   alignItems: 'center',
@@ -225,4 +260,4 @@ export const AiFilledChip = styled(Box)({
   borderRadius: 99,
   fontFamily: 'Inter, sans-serif',
   '& .MuiSvgIcon-root': { fontSize: 9 },
-})
+}) as typeof Box

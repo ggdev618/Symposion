@@ -4,7 +4,7 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import DownloadIcon from '@mui/icons-material/Download'
 import CloseIcon from '@mui/icons-material/Close'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
-import type { Session, Board, Message, Member, Guest } from '@/core/types'
+import type { Session, Board, Message, Member, Guest, MemberSnapshot } from '@/core/types'
 import { getSessionTitle } from '@/core/session'
 import { TensionMap } from '@/components/TensionMap'
 import { LoadingDialogue } from '@/components/LoadingDialogue'
@@ -78,7 +78,11 @@ export function ActiveSessionScreen({
   const [followUp, setFollowUp] = useState('')
   const scrollRef = useRef<HTMLDivElement>(null)
 
+  // Use the snapshot from when the session was created, fall back to current board
+  const displayMembers: MemberSnapshot[] = session.boardSnapshot ?? board.members
   const memberMap = Object.fromEntries(board.members.map((m) => [m.id, m]))
+  // Merge snapshot into lookup so old sessions resolve names/emojis correctly
+  const displayMap = Object.fromEntries(displayMembers.map((m) => [m.id, m]))
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -123,9 +127,9 @@ export function ActiveSessionScreen({
         </TopBarActions>
       </TopBar>
 
-      {/* Member chips */}
+      {/* Member chips — shows who was on the board for this session */}
       <ChipBar>
-        {board.members.map((member) => (
+        {displayMembers.map((member) => (
           <MemberChip
             key={member.id}
             label={member.name}
@@ -149,8 +153,8 @@ export function ActiveSessionScreen({
           <MessageBlock
             key={message.id}
             message={message}
-            memberMap={memberMap}
-            members={board.members}
+            memberMap={displayMap}
+            members={displayMembers}
             isListenMode={session.type === 'listen'}
             activeGuest={activeGuest}
             onDismissGuest={onDismissGuest}
@@ -228,8 +232,8 @@ function MessageBlock({
   onDismissGuest,
 }: {
   message: Message
-  memberMap: Record<string, Member>
-  members: Member[]
+  memberMap: Record<string, MemberSnapshot>
+  members: MemberSnapshot[]
   isListenMode?: boolean
   activeGuest?: Guest | null
   onDismissGuest?: () => void
@@ -285,7 +289,7 @@ function MessageBlock({
                       >
                         {displayName}
                       </SpeakerName>
-                      {line.finalVote && !isListenMode && (
+                      {line.finalVote && !isListenMode && message.questionType !== 'discussion' && (
                         <VotePill component="span" vote={line.finalVote}>
                           {line.finalVote.charAt(0).toUpperCase() + line.finalVote.slice(1)}
                         </VotePill>
@@ -312,10 +316,12 @@ function MessageBlock({
         <TensionMap tensionMap={message.tensionMap} members={members} />
       )}
 
-      {/* Verdict */}
+      {/* Verdict / Summary */}
       {message.verdict && !isListenMode && (
         <VerdictBox>
-          <VerdictLabel>Verdict</VerdictLabel>
+          <VerdictLabel>
+            {message.questionType === 'discussion' ? 'Summary' : 'Verdict'}
+          </VerdictLabel>
           <VerdictText>{message.verdict}</VerdictText>
         </VerdictBox>
       )}

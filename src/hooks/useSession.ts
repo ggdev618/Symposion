@@ -59,7 +59,8 @@ export function useSession({ apiKey, board, sessions, onMemberUpdated }: UseSess
           '', // content not used when dialogue exists
           result.dialogue,
           result.verdict,
-          result.tensionMap
+          result.tensionMap,
+          result.questionType
         )
 
         const updatedSession: Session = {
@@ -100,7 +101,8 @@ export function useSession({ apiKey, board, sessions, onMemberUpdated }: UseSess
               '',
               result.dialogue,
               result.verdict,
-              result.tensionMap
+              result.tensionMap,
+              result.questionType
             )
 
             const updatedSession: Session = {
@@ -179,7 +181,8 @@ export function useSession({ apiKey, board, sessions, onMemberUpdated }: UseSess
           '',
           result.dialogue,
           result.verdict,
-          result.tensionMap
+          result.tensionMap,
+          result.questionType
         )
 
         return {
@@ -232,6 +235,7 @@ export function useSession({ apiKey, board, sessions, onMemberUpdated }: UseSess
               dialogue: result.dialogue,
             },
           ],
+          boardSnapshot: board.members.map(({ id, name, emoji, role }) => ({ id, name, emoji, role })),
         }
 
         return listenSession

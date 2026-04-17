@@ -1,10 +1,14 @@
 import type { Board, Session } from '@/core/types'
 import { getSessionTitle, getRelativeDate } from '@/core/session'
+import CloseIcon from '@mui/icons-material/Close'
+import SettingsIcon from '@mui/icons-material/Settings'
 import {
   SidebarRoot,
   LogoWrapper,
+  LogoLeft,
   LogoIcon,
   LogoText,
+  SettingsButton,
   MembersSection,
   SectionLabel,
   MemberList,
@@ -19,7 +23,9 @@ import {
   SidebarDivider,
   SessionsSection,
   SessionList,
+  SessionRow,
   SessionButton,
+  SessionDeleteButton,
   SessionTitle,
   SessionDate,
   NewSessionWrapper,
@@ -31,8 +37,10 @@ interface SidebarProps {
   sessions: Session[]
   activeSessionId: string | null
   onSelectSession: (id: string) => void
+  onDeleteSession: (id: string) => void
   onNewSession: () => void
   onManageBoard: () => void
+  onOpenSettings: () => void
 }
 
 export function Sidebar({
@@ -40,15 +48,22 @@ export function Sidebar({
   sessions,
   activeSessionId,
   onSelectSession,
+  onDeleteSession,
   onNewSession,
   onManageBoard,
+  onOpenSettings,
 }: SidebarProps) {
   return (
     <SidebarRoot component="aside">
       {/* Logo */}
       <LogoWrapper>
-        <LogoIcon>🏛️</LogoIcon>
-        <LogoText>Symposion</LogoText>
+        <LogoLeft>
+          <LogoIcon>🏛️</LogoIcon>
+          <LogoText>Symposion</LogoText>
+        </LogoLeft>
+        <SettingsButton onClick={onOpenSettings} size="small">
+          <SettingsIcon />
+        </SettingsButton>
       </LogoWrapper>
 
       {/* Members */}
@@ -83,15 +98,26 @@ export function Sidebar({
         <SectionLabel>Recent</SectionLabel>
         <SessionList>
           {sessions.map((session) => (
-            <SessionButton
-              key={session.id}
-              active={session.id === activeSessionId}
-              onClick={() => onSelectSession(session.id)}
-              disableRipple
-            >
-              <SessionTitle>{getSessionTitle(session)}</SessionTitle>
-              <SessionDate>{getRelativeDate(session.date)}</SessionDate>
-            </SessionButton>
+            <SessionRow key={session.id}>
+              <SessionButton
+                active={session.id === activeSessionId}
+                onClick={() => onSelectSession(session.id)}
+                disableRipple
+              >
+                <SessionTitle>{getSessionTitle(session)}</SessionTitle>
+                <SessionDate>{getRelativeDate(session.date)}</SessionDate>
+              </SessionButton>
+              <SessionDeleteButton
+                className="session-delete"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onDeleteSession(session.id)
+                }}
+                size="small"
+              >
+                <CloseIcon />
+              </SessionDeleteButton>
+            </SessionRow>
           ))}
         </SessionList>
       </SessionsSection>

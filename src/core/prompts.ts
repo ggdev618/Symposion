@@ -3,7 +3,7 @@ import type { Member, Board, Session, DialogueLine, Guest, TensionMap } from './
 // ─── Helpers ────────────────────────────────────────────
 
 function formatMemberContext(member: Member): string {
-  let ctx = `- ${member.name} (${member.role}): ${member.personality}`
+  let ctx = `- ${member.name} [memberId: "${member.id}"] (${member.role}): ${member.personality}`
 
   if (member.condensedMemory) {
     ctx += `\n  Long-term observations: ${member.condensedMemory}`
@@ -55,6 +55,7 @@ function buildConversationHistory(session: Session, board: Board): string {
 // ─── Open Session Prompt ────────────────────────────────
 
 export interface OpenSessionResponse {
+  questionType: 'decision' | 'discussion'
   dialogue: DialogueLine[]
   verdict: string
   tensionMap: TensionMap
@@ -73,19 +74,26 @@ export function buildOpenSessionPrompt(
 
 ${boardContext}
 
+First, classify the question:
+- "decision" — has a clear yes/no, go/no-go, do this/don't do this answer
+- "discussion" — open-ended advice, analysis, reflection, exploration, or anything without a binary answer
+
 Generate a natural board debate as a flowing dialogue. Instructions:
 - Members react to each other directly, not just to the question
 - Members speak more than once where natural — interrupt, concede, dig in
 - Each member's personality and history shapes how they argue, not just what they conclude
 - Members reference past positions when genuinely relevant, without announcing they are doing so
 - The dialogue should feel like a real heated meeting, not a survey of opinions
-- Include finalVote on each member's last line only
-- Determine whether an outside guest voice would genuinely add value for this specific question. Only include a guest if there is a real gap — most sessions should return null
+- For "decision" questions: include finalVote ("yes" | "no" | "abstain") on each member's last line only
+- For "discussion" questions: set finalVote to null on every line — votes are meaningless here
+- "verdict" should summarise the board's conclusion; for discussions use "summary" framing not a ruling
+- Determine whether an outside guest voice would genuinely add value. Only include a guest if there is a real gap — most sessions should return null
 - Identify named fault lines from the actual argument, not generic categories
 ${board.devilsAdvocate ? '- The Devil\'s Advocate (memberId "devil") must always argue against whatever position the majority is taking' : ''}
 
 Return only valid JSON — no markdown, no backticks, no preamble:
 {
+  "questionType": "decision" | "discussion",
   "dialogue": [
     { "memberId": "...", "text": "...", "finalVote": "yes" | "no" | "abstain" | null }
   ],

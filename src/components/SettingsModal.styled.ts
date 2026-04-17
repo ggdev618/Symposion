@@ -79,6 +79,9 @@ export const ApiKeyField = styled(TextField)({
     color: '#3a3a3a',
     opacity: 1,
   },
+  // Hide the browser's native password reveal button (WebView2/Edge/Chrome)
+  '& input::-ms-reveal': { display: 'none' },
+  '& input::-ms-clear': { display: 'none' },
 })
 
 export const ToggleVisibilityButton = styled(IconButton)({
@@ -107,5 +110,38 @@ export const SaveButton = styled(Button)({
   transition: 'all 150ms ease',
   '&:hover': {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
+  },
+})
+
+export const DangerSection = styled(Box)({
+  padding: '16px 20px',
+  borderTop: '1px solid #1e1e1e',
+})
+
+export const DangerLabel = styled(Typography)({
+  fontSize: 11,
+  fontWeight: 500,
+  color: '#666',
+  textTransform: 'uppercase',
+  letterSpacing: '0.05em',
+  marginBottom: 8,
+  fontFamily: 'Inter, sans-serif',
+})
+
+export const DangerButton = styled(Button)({
+  width: '100%',
+  padding: '10px 0',
+  backgroundColor: 'transparent',
+  color: '#c0392b',
+  border: '1px solid #3a1a1a',
+  fontSize: 13,
+  fontWeight: 500,
+  fontFamily: 'Inter, sans-serif',
+  borderRadius: 5,
+  textTransform: 'none',
+  transition: 'all 150ms ease',
+  '&:hover': {
+    backgroundColor: 'rgba(192, 57, 43, 0.08)',
+    borderColor: '#c0392b',
   },
 })

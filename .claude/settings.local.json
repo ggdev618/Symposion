@@ -28,7 +28,9 @@
       "Bash(npm uninstall:*)",
       "Read(//c/Users/Gabriel/AppData/Roaming/com.symposion.desktop/**)",
       "Read(//c/Users/Gabriel/AppData/Roaming//**)",
-      "Bash(cat /c/Users/Gabriel/Documents/Github/Symposion/src-tauri/capabilities/*.json)"
+      "Bash(cat /c/Users/Gabriel/Documents/Github/Symposion/src-tauri/capabilities/*.json)",
+      "Bash(ls -la \"C:/Users/Gabriel/Documents/Github/Symposion/src-tauri/symposion-vault.hold\"*)",
+      "Bash(ls /c/Users/Gabriel/Documents/Github/Symposion/src-tauri/symposion-vault*)"
     ]
   }
 }
